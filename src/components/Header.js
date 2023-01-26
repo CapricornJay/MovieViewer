@@ -7,7 +7,7 @@ const Header = () => {
       <div className="container">
         <div className="inner-content">
           <div className="brand">
-            <Link to="/">My Favourite Movies</Link>
+            <Link to="/">JML</Link>
           </div>
           <div className="nav-links">
             <li>
