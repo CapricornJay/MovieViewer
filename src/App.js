@@ -5,8 +5,6 @@ import Add from "./components/Add";
 import AllTimeTopMovies from "./components/AllTimeTopMovies";
 import Header from "./components/Header";
 import UpcomingMovies from "./components/UpcomingMovies";
-import Watched from "./components/Watched";
-import WatchList from "./components/WatchList";
 import { GlobalContextProvider } from "./context/GlobalState";
 
 const App = () => {
