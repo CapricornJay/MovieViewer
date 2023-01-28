@@ -1,5 +1,6 @@
 import { MenuItem, Select } from '@material-ui/core';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import LoadingSpinner from './LoadingSpinner';
 import MovieCard from './MovieCard';
 
 const UpcomingMovies = () => {
@@ -10,26 +11,50 @@ const UpcomingMovies = () => {
 
     const handleLanguageChange = (event) => {
         setLanguage(event.target.value);
-      };
+        setLoading(true);
+    };
+
+    // Get current date
+    const currentDate = new Date();
+
+    // Format date to yyyy-mm-dd
+    const formattedDate = currentDate.toISOString().slice(0, 10);
+
+    const fetchData = useCallback(async (page) => {
+        const url = `https://api.themoviedb.org/3/discover/movie?api_key=afcc4e756d500720208345094fe13a77&language=en-US&sort_by=release_date.asc&include_adult=false&include_video=false&page=1&primary_release_date.gte=${formattedDate}&with_original_language=${language}&page=${page}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    }, [language,formattedDate]);
+
+    const fetchAllPages = useCallback(async () => {
+        let page = 1;
+        let totalPages = 1; 
+        let movieData = [];
+        while (page <= totalPages) {
+            let data = await fetchData(page);
+            totalPages = data.total_pages;
+            movieData = movieData.concat(data.results);
+            page++;
+        }
+        setMovies(movieData);
+    }, [fetchData, setMovies]);
 
     useEffect(() => {
-        fetch(
-            `https://api.themoviedb.org/3/discover/movie?api_key=afcc4e756d500720208345094fe13a77&language=en-US&sort_by=release_date.asc&include_adult=false&include_video=false&page=1&primary_release_date.gte=2023-01-01&primary_release_date.lte=2023-12-31&with_original_language=${language}`
-        )
-            .then((response) => response.json())
+        fetchAllPages()
             .then((data) => {
-                setMovies(data.results);
+
                 setLoading(false);
             })
             .catch((error) => {
                 setError(error);
                 setLoading(false);
             });
-    }, [language]);
+    }, [language, fetchAllPages]);
 
     // ...
     if (loading) {
-        return <p>Loading...</p>;
+        return <LoadingSpinner/>;
     }
 
     if (error) {
